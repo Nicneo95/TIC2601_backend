@@ -16,19 +16,39 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Users.init({
-    user_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    name:    { type: DataTypes.STRING(100), allowNull: false },
-    email:   { type: DataTypes.STRING(255), allowNull: false, unique: true },
-    password:{ type: DataTypes.STRING(255), allowNull: false },
+    user_id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: true,
+      validate: { isEmail: true }
+    },
+    password: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
     address: DataTypes.STRING(255),
-    phone:   DataTypes.STRING(20),
-    role:    { type: DataTypes.ENUM('customer','host','admin'), defaultValue: 'customer' }
+    phone: DataTypes.STRING(20),
+    role: {
+      type: DataTypes.ENUM('customer', 'host', 'admin'),
+      defaultValue: 'customer'
+    }
   }, {
     sequelize,
     modelName: 'Users',
+    tableName: 'Users',
+    underscored: true,  // ← THIS FIXES createdAt → created_at
     hooks: {
-      beforeCreate: async u => { u.password = await bcrypt.hash(u.password, 10); },
-      beforeUpdate: async u => { if (u.changed('password')) u.password = await bcrypt.hash(u.password, 10); }
+      beforeCreate: async (u) => { u.password = await bcrypt.hash(u.password, 10); },
+      beforeUpdate: async (u) => { if (u.changed('password')) u.password = await bcrypt.hash(u.password, 10); }
     }
   });
 

@@ -18,7 +18,13 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'EatWithLocals backend is alive!' });
 });
 
-// Routes will go here
+// Auth routes
+const authRoutes = require('./routes/auth.routes');
+app.use('/api/auth', authRoutes);
+
+// ----- RESTAURANTS -----
+const restaurantRoutes = require('./routes/restaurant.routes');
+app.use('/api/restaurants', restaurantRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -33,3 +39,4 @@ app.listen(PORT, async () => {
   await sequelize.authenticate();
   console.log('Database connected');
 });
+
