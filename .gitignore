@@ -1,0 +1,4 @@
+node_modules/
+eatwithlocals.db
+.env
+.DS_Store
