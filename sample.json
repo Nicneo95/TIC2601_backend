@@ -1,0 +1,31 @@
+// Restaurant owner
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "123456",
+  "phone": "68670867",
+  "address": "226 Geylang Road",
+  "role": "host"
+}
+//  login
+{
+  "email": "john@example.com",
+  "password": "123456"
+}
+
+// Customer
+{
+  "name": "Rick",
+  "email": "rick@example.com",
+  "password": "123456",
+  "phone": "95563789",
+  "address": "14 Scotts Road",
+  "role": "customer"
+}
+//  login
+{
+  "email": "rick@example.com",
+  "password": "123456"
+}
+
+

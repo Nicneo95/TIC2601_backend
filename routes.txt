@@ -1,0 +1,54 @@
+POST http://localhost:3000/api/auth/register
+POST http://localhost:3000/api/auth/login
+POST http://localhost:3000/api/menuitems
+//update image 
+PUT http://localhost:3000/api/menuitems/1/image
+//update fields
+PUT http://localhost:3000/api/menuitems/1
+DELETE http://localhost:3000/api/menuitems/1
+// Get all menu item
+GET http://localhost:3000/api/menuitems/restaurant/1
+// Get one menu item
+GET http://localhost:3000/api/menuitems/1
+// place order 
+POST http://localhost:3000/api/orders
+// customer can check order 
+GET http://localhost:3000/api/orders/my-orders
+// restaurant all order
+GET http://localhost:3000/api/orders/restaurant-orders
+// restaurant can change status 
+PUT http://localhost:3000/api/orders/12/status
+// create restaurant
+POST http://localhost:3000/api/restaurants
+//update image or fields
+PUT http://localhost:3000/api/restaurants/1/image
+// get all restaurant
+GET http://localhost:3000/api/restaurants
+//get one 
+GET http://localhost:3000/api/restaurants/1
+DELETE http://localhost:3000/api/restaurants/1
+// get review for restaurant id:1
+GET http://localhost:3000/api/reviews/1
+// create review
+POST http://localhost:3000/api/reviews
+// update review
+PUT http://localhost:3000/api/reviews/10
+DELETE http://localhost:3000/api/reviews/10
+
+Authorization: Bearer <host_token>
+Body -> form-data
+Key	Type	Example Value
+name	Text	Chicken Rice
+description	Text	Roasted chicken with fragrant rice
+price	Text	8.50
+image	File	(select image file)
+
+Authorization: Bearer <host_or_admin_token>
+Content-Type: multipart/form-data
+Key	Type	Value
+name	Text	Lau Pa Sat Eatery
+address	Text	18 Raffles Quay, Singapore 048582
+phone	Text	9876543210
+cuisine_type	Text	Chinese
+description	Text	Authentic Chinese street food
+image	File	(Upload an image file)

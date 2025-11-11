@@ -1,42 +1,54 @@
-require('dotenv').config();
+'use strict';
+require('dotenv').config(); // Load .env variables
 const express = require('express');
 const cors = require('cors');
+const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
 const cookieParser = require('cookie-parser');
-const session = require('./config/session');
-const { sequelize } = require('./models');
+const path = require('path');
 
 const app = express();
 
-// Middleware
-app.use(cookieParser());
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+// Middlewares
+app.use(cors());
 app.use(express.json());
-app.use(session);
+app.use(cookieParser());
 
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'EatWithLocals backend is alive!' });
-});
+// Setup sessions (for web clients)
+app.use(session({
+  store: new SQLiteStore(),
+  secret: process.env.SESSION_SECRET || 'keyboard cat',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    maxAge: 3600000 // 1 hour
+  }
+}));
 
-// Auth routes
+// Routes
 const authRoutes = require('./routes/auth.routes');
 app.use('/api/auth', authRoutes);
 
-// ----- RESTAURANTS -----
 const restaurantRoutes = require('./routes/restaurant.routes');
 app.use('/api/restaurants', restaurantRoutes);
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Server error' });
-});
+const menuItemRoutes = require('./routes/menuItem.routes');
+app.use('/api/menuitems', menuItemRoutes);
 
-// Start
+const orderRoutes = require('./routes/order.routes');
+app.use('/api/orders', orderRoutes);
+
+const reviewRoutes = require('./routes/review.routes');
+app.use('/api/reviews', reviewRoutes);
+
+// serve uploaded files: http://localhost:3000/uploads/<filename>
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
+
+// Health check
+app.get('/health', (req, res) => res.json({ ok: true }));
+
+// Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, async () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  await sequelize.authenticate();
-  console.log('Database connected');
-});
-
+app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

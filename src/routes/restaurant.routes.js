@@ -1,25 +1,25 @@
-// src/routes/restaurant.routes.js
+'use strict';
 const express = require('express');
 const router = express.Router();
-const {
-  create, getAll, getById, update, remove
-} = require('../controllers/restaurant.controller');
-const { authenticate } = require('../middlewares/jwtAuth');
-const { hasRole } = require('../middlewares/role');
-const { validate } = require('../middlewares/validate');
-const { restaurantSchema } = require('../forms/restaurant.form');
 
-// ---------- HOST‑ONLY ----------
-router.post('/', authenticate, hasRole(['host']), validate(restaurantSchema), create);
-router.put('/:id', authenticate, hasRole(['host']), validate(restaurantSchema), update);
-router.delete('/:id', authenticate, hasRole(['host']), remove);
+const { authenticate } = require('../middlewares/auth.middleware');
+const { authorize } = require('../middlewares/role.middleware');
+const controller = require('../controllers/restaurant.controller');
+const upload = require('../middlewares/upload.middleware');
 
-// ---------- PUBLIC ----------
-router.get('/', getAll);
-router.get('/:id', getById);
-
-// ---------- MENU ITEMS (NESTED) ----------
-const menuItemRoutes = require('./menuItem.routes');
-router.use('/:restaurantId/menu-items', menuItemRoutes);  // ← NOW WORKS
+// // CREATE restaurant (only host or admin)
+// router.post('/', authenticate, authorize('host', 'admin'), controller.create);
+// // UPDATE restaurant (only host or admin)
+// router.put('/:id', authenticate, authorize('host', 'admin'), controller.update);
+// DELETE restaurant (only admin)
+router.delete('/:id', authenticate, authorize('admin'), controller.remove);
+// GET all restaurants (public)
+router.get('/', controller.getAll);
+// GET one restaurant (public)
+router.get('/:id', controller.getOne);
+// Create restaurant (Host/Admin) + Image
+router.post('/', authenticate, authorize('host', 'admin'), upload.single('image'), controller.create);
+// Update restaurant image
+router.put('/:id/image', authenticate, authorize('host', 'admin'), upload.single('image'), controller.update);
 
 module.exports = router;

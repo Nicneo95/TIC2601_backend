@@ -1,20 +1,27 @@
 const express = require('express');
-const router = express.Router({ mergeParams: true });
-const {
-  create, getByRestaurant, getById, update, remove
-} = require('../controllers/menuItem.controller');
-const { authenticate } = require('../middlewares/jwtAuth');
-const { hasRole } = require('../middlewares/role');
-const { validate } = require('../middlewares/validate');
-const { menuItemSchema } = require('../forms/menuItem.form');
+const router = express.Router();
+const controller = require('../controllers/menuItem.controller');
+const { authenticate } = require('../middlewares/auth.middleware');
+const { authorize } = require('../middlewares/role.middleware');
+const menuItemController = require('../controllers/menuItem.controller');
+const upload = require('../middlewares/upload.middleware');
 
-// Host‑only
-router.post('/', authenticate, hasRole(['host']), validate(menuItemSchema), create);
-router.put('/:id', authenticate, hasRole(['host']), validate(menuItemSchema), update);
-router.delete('/:id', authenticate, hasRole(['host']), remove);
+// // Host or Admin can create/update/delete menu items
+// router.post('/', authenticate, authorize('host', 'admin'), menuItemController.create);
+// // Host or Admin can update menu items
+// router.put('/:id', authenticate, authorize('host', 'admin'), menuItemController.update);
+// Host or Admin can delete menu items
+router.delete('/:id', authenticate, authorize('host', 'admin'), menuItemController.remove);
+// Create menu item with image
+router.post('/', authenticate, authorize('host', 'admin'), upload.single('image'), controller.create);
+// Update menu item text fields or image (combined)
+router.put('/:id', authenticate, authorize('host', 'admin'), upload.single('image'), controller.update);
+// Optional dedicated image-only route (if you want to keep it)
+router.put('/:id/image', authenticate, authorize('host', 'admin'), upload.single('image'), controller.update);
 
-// Public
-router.get('/', getByRestaurant);
-router.get('/:id', getById);
+
+// Public routes (no auth)
+router.get('/restaurant/:restaurant_id', menuItemController.getAllByRestaurant);
+router.get('/:id', menuItemController.getOne);
 
 module.exports = router;
