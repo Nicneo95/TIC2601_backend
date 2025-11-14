@@ -15,7 +15,7 @@ async function create(req, res) {
     let restaurant;
 
     // 2. If user is a host, auto-detect their restaurant from the DB
-    if (req.user.role === 'host') {
+    if (req.user.role === 'owner') {
       restaurant = await Restaurants.findOne({ where: { user_id: req.user.user_id } });
 
       if (!restaurant) {
@@ -83,7 +83,7 @@ async function update(req, res) {
     }
 
     // Restrict host users to their own restaurant only
-    if (req.user.role === 'host' && menuItem.Restaurant.user_id !== req.user.user_id) {
+    if (req.user.role === 'owner' && menuItem.Restaurant.user_id !== req.user.user_id) {
       return res.status(403).json({
         message: 'You cannot edit menu items for another restaurant'
       });
@@ -134,7 +134,7 @@ async function remove(req, res) {
     }
 
     // Only the host who owns this restaurant or admin can delete
-    if (req.user.role === 'host' && menuItem.Restaurant.user_id !== req.user.user_id) {
+    if (req.user.role === 'owner' && menuItem.Restaurant.user_id !== req.user.user_id) {
       return res.status(403).json({
         message: 'You cannot delete menu items for another restaurant'
       });

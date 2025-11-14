@@ -195,7 +195,7 @@ async function updateOrderStatus(req, res) {
     }
 
     // If host, verify the order belongs to their restaurant
-    if (req.user.role === 'host') {
+    if (req.user.role === 'owner') {
       const restaurant = await Restaurants.findOne({ where: { user_id: req.user.user_id } });
       if (!restaurant || restaurant.restaurant_id !== order.restaurant_id) {
         return res.status(403).json({ message: 'You can only update orders for your own restaurant' });

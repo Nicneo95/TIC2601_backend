@@ -178,7 +178,7 @@ async function update(req, res) {
     }
 
     // Restrict host to only their restaurant
-    if (req.user.role === 'host' && restaurant.user_id !== req.user.user_id) {
+    if (req.user.role === 'owner' && restaurant.user_id !== req.user.user_id) {
       return res.status(403).json({
         message: 'You can only update your own restaurant'
       });
