@@ -24,6 +24,7 @@ const sequelize = new Sequelize(config);
 (async () => {
   try {
     await sequelize.authenticate();                     // Tries to connect using provided credentials/config.
+    await sequelize.sync();                             // Syncs all defined models to the DB (creates tables if needed).
     console.log(`Database connected successfully (${env})`); // Logs success message.
   } catch (err) {
     console.error('Database connection failed:', err.message); // Logs an error if the DB connection fails.

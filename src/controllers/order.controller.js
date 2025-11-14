@@ -8,7 +8,7 @@ async function createOrder(req, res) {
     const { restaurant_id, delivery_address, items } = req.body;
 
     // Check: Only customers can place orders
-    if (req.user.role !== 'customer') {
+    if (req.user.role !== 'user') {
       return res.status(403).json({ message: 'Only customers can place orders' });
     }
 

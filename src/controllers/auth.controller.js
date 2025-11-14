@@ -14,8 +14,8 @@ async function register(req, res) {
     }
 
     // Only allow 'customer' or 'host' for registration
-    const allowedRoles = ['customer', 'host'];
-    const userRole = allowedRoles.includes(role) ? role : 'customer';
+    const allowedRoles = ['user', 'rider', 'owner'];
+    const userRole = allowedRoles.includes(role) ? role : 'user';
 
     // Check if email already exists
     const existingUser = await Users.findOne({ where: { email } });
@@ -27,21 +27,22 @@ async function register(req, res) {
     const newUser = await Users.create({ name, email, password, address, phone, role: userRole });
 
     // Generate token for new user
-    const token = generateToken(newUser);
+    // const token = generateToken(newUser);
 
     return res.status(201).json({
       message: 'User registered successfully',
-      token,
-      user: {
-        id: newUser.user_id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role
-      }
+      success: true
+      // token,
+      // user: {
+      //   id: newUser.user_id,
+      //   name: newUser.name,
+      //   email: newUser.email,
+      //   role: newUser.role
+      // }
     });
   } catch (err) {
     console.error('Register Error:', err);
-    return res.status(500).json({ message: 'Registration failed', error: err.message });
+    return res.status(500).json({ message: 'Registration failed', success: false, error: err.message });
   }
 }
 
@@ -77,6 +78,8 @@ async function login(req, res) {
         id: user.user_id,
         name: user.name,
         email: user.email,
+        address: user.address,
+        phone: user.phone,
         role: user.role
       }
     });
