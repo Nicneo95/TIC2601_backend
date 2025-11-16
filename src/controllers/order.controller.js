@@ -8,7 +8,7 @@ async function createOrder(req, res) {
     const { restaurant_id, delivery_address, items } = req.body;
 
     // Check: Only customers can place orders
-    if (req.user.role !== 'customer') {
+    if (req.user.role !== 'user') {
       return res.status(403).json({ message: 'Only customers can place orders' });
     }
 
@@ -195,7 +195,7 @@ async function updateOrderStatus(req, res) {
     }
 
     // If host, verify the order belongs to their restaurant
-    if (req.user.role === 'host') {
+    if (req.user.role === 'owner') {
       const restaurant = await Restaurants.findOne({ where: { user_id: req.user.user_id } });
       if (!restaurant || restaurant.restaurant_id !== order.restaurant_id) {
         return res.status(403).json({ message: 'You can only update orders for your own restaurant' });

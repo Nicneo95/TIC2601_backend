@@ -67,10 +67,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false                  // Required field.
     },
     role: {
-      type: DataTypes.ENUM('customer', 'host', 'admin'),
+      // type: DataTypes.ENUM('customer', 'host', 'admin'),
+      type: DataTypes.ENUM('user', 'rider', 'owner'),
       // Defines a fixed list of allowed roles.
 
-      defaultValue: 'customer'
+      // defaultValue: 'customer'
+      defaultValue: 'user'
       // Sets default role for new users to 'customer'.
     }
   }, {
