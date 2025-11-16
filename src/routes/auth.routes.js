@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 
 // Import controller functions
-const { register, login, updateProfile } = require('../controllers/auth.controller');
+const { register, login, updateProfile, getProfile } = require('../controllers/auth.controller');
 
 // Import middlewares
 const { authenticate } = require('../middlewares/auth.middleware');
@@ -22,4 +22,9 @@ router.post('/login', login);
 // Update user profile (only logged-in users)
 router.put('/update', authenticate, updateProfile);
 
+// Get current logged-in user's profile
+router.get('/info', authenticate, getProfile);
+
 module.exports = router;
+
+

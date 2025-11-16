@@ -134,4 +134,25 @@ async function updateProfile(req, res) {
   }
 }
 
-module.exports = { register, login, updateProfile };
+// Get user profile (name, email, phone, address)
+async function getProfile(req, res) {
+  try {
+    const user = await Users.findByPk(req.user.user_id, {
+      attributes: ['name', 'email', 'phone', 'address']
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      message: 'User profile fetched successfully',
+      user
+    });
+  } catch (err) {
+    console.error('Error fetching user profile:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+
+module.exports = { register, login, updateProfile, getProfile };
