@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(255),      // String type up to 255 characters.
       allowNull: false,                 // Required field.
       unique: true,                     // Ensures each email is unique.
-      validate: { isEmail: true }       // Adds built-in email format validation.
+      // validate: { isEmail: true }       // Adds built-in email format validation.
     },
     password: {
       type: DataTypes.STRING(255),      // Stores the hashed password.

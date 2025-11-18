@@ -31,7 +31,7 @@ async function register(req, res) {
 
     return res.status(201).json({
       message: 'User registered successfully',
-      success: true
+      success: true,
       // token,
       // user: {
       //   id: newUser.user_id,
@@ -102,9 +102,9 @@ async function updateProfile(req, res) {
     }
 
     // Optional: Admins can update others if allowed
-    if (req.user.role !== 'admin' && req.user.user_id !== user.user_id) {
-      return res.status(403).json({ message: 'You can only update your own profile' });
-    }
+    // if (req.user.role !== 'admin' && req.user.user_id !== user.user_id) {
+    //   return res.status(403).json({ message: 'You can only update your own profile' });
+    // }
 
     // Update fields only if provided
     if (email) user.email = email;

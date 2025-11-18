@@ -11,13 +11,13 @@ const upload = require('../middlewares/upload.middleware');
 // // Host or Admin can update menu items
 // router.put('/:id', authenticate, authorize('host', 'admin'), menuItemController.update);
 // Host or Admin can delete menu items
-router.delete('/:id', authenticate, authorize('host', 'admin'), menuItemController.remove);
+router.delete('/:id', authenticate, authorize('owner'), menuItemController.remove);
 // Create menu item with image
-router.post('/', authenticate, authorize('host', 'admin'), upload.single('image'), controller.create);
+router.post('/', authenticate, authorize('owner'), upload.single('image'), controller.create);
 // Update menu item text fields or image (combined)
-router.put('/:id', authenticate, authorize('host', 'admin'), upload.single('image'), controller.update);
+router.put('/:id', authenticate, authorize('owner'), upload.single('image'), controller.update);
 // Optional dedicated image-only route (if you want to keep it)
-router.put('/:id/image', authenticate, authorize('host', 'admin'), upload.single('image'), controller.update);
+router.put('/:id/image', authenticate, authorize('owner'), upload.single('image'), controller.update);
 
 
 // Public routes (no auth)

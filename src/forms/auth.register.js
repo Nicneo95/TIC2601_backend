@@ -2,7 +2,7 @@
 const Joi = require('joi'); // Import Joi for validation
 
 // Alias: we store 'restaurant' as 'host' in DB
-const ROLE_ALIASES = { restaurant: 'host' };
+// const ROLE_ALIASES = { restaurant: 'host' };
 
 // Define validation schema
 const schema = Joi.object({
@@ -29,10 +29,10 @@ const schema = Joi.object({
   address: Joi.string().max(255).allow('', null),
 
   role: Joi.string()
-    .valid('customer', 'restaurant')
-    .default('customer')
+    .valid('user', 'rider', 'owner')
+    .default('user')
     .messages({
-      'any.only': 'Role must be either customer or restaurant'
+      'any.only': 'Role must be either user, rider or owner'
     })
 });
 

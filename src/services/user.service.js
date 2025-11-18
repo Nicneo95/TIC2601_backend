@@ -5,8 +5,8 @@ const { Users } = require('../models');
 async function createUser(payload) {
   try {
     // Role validation (only host or customer, admin is superuser)
-    const allowedRoles = new Set(['customer', 'host']);
-    const role = allowedRoles.has(payload.role) ? payload.role : 'customer';
+    const allowedRoles = new Set(['user', 'rider', 'owner']);
+    const role = allowedRoles.has(payload.role) ? payload.role : 'user';
 
     // Create user in DB
     const user = await Users.create({

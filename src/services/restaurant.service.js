@@ -17,27 +17,27 @@ const EARTH_RADIUS_KM = 6371;
 // CREATE Restaurant — only host or admin allowed
 async function createRestaurant(user, payload) {
   // Only 'host' or 'admin' can create a restaurant.
-  if (user.role !== 'host' && user.role !== 'admin') {
-    const err = new Error('Only restaurant hosts can create restaurants');
+  if (user.role !== 'owner') {
+    const err = new Error('Only owners can create restaurants');
     err.status = 403;
     throw err;
   }
 
   // If user didn’t provide latitude/longitude, try to geocode the address.
-  if (!payload.latitude || !payload.longitude) {
-    const coords = await geocodeAddress(payload.address);
+  // if (!payload.latitude || !payload.longitude) {
+  //   const coords = await geocodeAddress(payload.address);
 
-    // If no coordinates found, stop with an error.
-    if (!coords) {
-      const err = new Error('Unable to fetch coordinates for this address');
-      err.status = 400;
-      throw err;
-    }
+  //   // If no coordinates found, stop with an error.
+  //   if (!coords) {
+  //     const err = new Error('Unable to fetch coordinates for this address');
+  //     err.status = 400;
+  //     throw err;
+  //   }
 
-    // Set lat/lng automatically.
-    payload.latitude = coords.lat;
-    payload.longitude = coords.lng;
-  }
+  //   // Set lat/lng automatically.
+  //   payload.latitude = coords.lat;
+  //   payload.longitude = coords.lng;
+  // }
 
   // Save restaurant in DB with owner (user_id).
   const restaurant = await Restaurants.create({
@@ -60,20 +60,20 @@ async function updateRestaurant(user, restaurantId, payload) {
   }
 
   // If not admin, make sure the user owns this restaurant.
-  if (user.role !== 'admin' && restaurant.user_id !== (user.id || user.user_id)) {
+  if (user.role !== 'owner' && restaurant.user_id !== (user.id || user.user_id)) {
     const err = new Error('Forbidden: you can only update your own restaurant');
     err.status = 403;
     throw err;
   }
 
   // If address changes and no coords given, automatically re-geocode.
-  if (payload.address && (!payload.latitude || !payload.longitude)) {
-    const coords = await geocodeAddress(payload.address);
-    if (coords) {
-      payload.latitude = coords.lat;
-      payload.longitude = coords.lng;
-    }
-  }
+  // if (payload.address && (!payload.latitude || !payload.longitude)) {
+  //   const coords = await geocodeAddress(payload.address);
+  //   if (coords) {
+  //     payload.latitude = coords.lat;
+  //     payload.longitude = coords.lng;
+  //   }
+  // }
 
   // Update the restaurant fields in the database.
   await restaurant.update(payload);
@@ -105,27 +105,27 @@ async function getAllRestaurants(query = {}) {
   };
 
   // 🧭 Distance calculation (optional)
-  if (lat && lng) {
-    const latNum = parseFloat(lat);
-    const lngNum = parseFloat(lng);
+  // if (lat && lng) {
+  //   const latNum = parseFloat(lat);
+  //   const lngNum = parseFloat(lng);
 
-    options.attributes.include.push([
-      sequelize.literal(`
-        ${EARTH_RADIUS_KM} * acos(
-          cos(radians(${latNum})) *
-          cos(radians(latitude)) *
-          cos(radians(longitude) - radians(${lngNum})) +
-          sin(radians(${latNum})) *
-          sin(radians(latitude))
-        )
-      `),
-      'distance_km'
-    ]);
+  //   options.attributes.include.push([
+  //     sequelize.literal(`
+  //       ${EARTH_RADIUS_KM} * acos(
+  //         cos(radians(${latNum})) *
+  //         cos(radians(latitude)) *
+  //         cos(radians(longitude) - radians(${lngNum})) +
+  //         sin(radians(${latNum})) *
+  //         sin(radians(latitude))
+  //       )
+  //     `),
+  //     'distance_km'
+  //   ]);
 
-    if (maxDistance) {
-      options.having = sequelize.literal(`distance_km <= ${parseFloat(maxDistance)}`);
-    }
-  }
+  //   if (maxDistance) {
+  //     options.having = sequelize.literal(`distance_km <= ${parseFloat(maxDistance)}`);
+  //   }
+  // }
 
   // Sorting logic
   if (sort === 'reviews') {

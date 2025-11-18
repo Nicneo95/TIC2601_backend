@@ -149,8 +149,8 @@ async function create(req, res) {
       address,
       phone,
       cuisine_type,
-      latitude: lat,
-      longitude: lng,
+      // latitude: lat,
+      // longitude: lng,
       description,
       image_url,
     });

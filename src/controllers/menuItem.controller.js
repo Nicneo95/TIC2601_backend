@@ -23,20 +23,21 @@ async function create(req, res) {
           message: 'You do not have a restaurant yet. Please create one first.'
         });
       }
+    }
 
     // 3. If user is an admin, they must specify restaurant_id manually
-    } else if (req.user.role === 'admin') {
-      if (!req.body.restaurant_id) {
-        return res.status(400).json({
-          message: 'Admin must specify a restaurant_id'
-        });
-      }
+    // } else if (req.user.role === 'admin') {
+    //   if (!req.body.restaurant_id) {
+    //     return res.status(400).json({
+    //       message: 'Admin must specify a restaurant_id'
+    //     });
+    //   }
 
-      restaurant = await Restaurants.findByPk(req.body.restaurant_id);
-      if (!restaurant) {
-        return res.status(404).json({ message: 'Restaurant not found' });
-      }
-    }
+    //   restaurant = await Restaurants.findByPk(req.body.restaurant_id);
+    //   if (!restaurant) {
+    //     return res.status(404).json({ message: 'Restaurant not found' });
+    //   }
+    // }
 
     // Handle image upload
     const image_url = req.file ? `/uploads/${req.file.filename}` : null;
