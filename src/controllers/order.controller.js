@@ -129,7 +129,7 @@ async function getRestaurantOrders(req, res) {
     // If host, fetch only their own restaurant’s orders
     let whereCondition = {};
 
-    if (req.user.role === 'host') {
+    if (req.user.role === 'owner') {
       const restaurant = await Restaurants.findOne({
         where: { user_id: req.user.user_id }
       });
@@ -171,6 +171,33 @@ async function getRestaurantOrders(req, res) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
+
+
+// -------- NEW CODE: Rider – get pending orders --------
+async function getPendingOrders(req, res) {
+  try {
+    const orders = await Orders.findAll({
+      where: { status: 'Pending' },          // only unclaimed orders
+      include: [
+        {
+          model: Restaurants,
+          attributes: ['name', 'address', 'phone', 'image_url']
+        }
+      ],
+      order: [['order_date', 'ASC']]
+    });
+
+    return res.status(200).json({
+      message: 'Pending orders fetched successfully',
+      total_orders: orders.length,
+      orders
+    });
+  } catch (err) {
+    console.error('Error fetching pending orders:', err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+// -------- END NEW CODE --------
 
 
 // HOST — Update order status (Preparing → Delivered)
@@ -222,10 +249,58 @@ async function updateOrderStatus(req, res) {
 }
 
 
+// -------- NEW CODE: Rider – claim / accept an order --------
+async function claimOrder(req, res) {
+  try {
+    const { order_id } = req.params;
+
+    if (req.user.role !== 'rider') {
+      return res.status(403).json({ message: 'Only riders can accept orders' });
+    }
+
+    const order = await Orders.findByPk(order_id, {
+      include: [
+        {
+          model: Restaurants,
+          attributes: ['name', 'address', 'phone', 'image_url']
+        }
+      ]
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.status !== 'Pending') {
+      return res.status(400).json({
+        message: 'Order is not pending. It may have been accepted by another rider.'
+      });
+    }
+
+    // If you add a rider_id column later, set it here:
+    // order.rider_id = req.user.user_id;
+
+    order.status = 'Preparing';  // or 'Assigned' if you extend allowedStatuses
+    await order.save();
+
+    return res.status(200).json({
+      message: 'Order claimed successfully',
+      order
+    });
+  } catch (err) {
+    console.error('Error claiming order:', err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+// -------- END NEW CODE --------
+
+
 // Export all controller functions
 module.exports = {
   createOrder,
   getMyOrders,
   getRestaurantOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  getPendingOrders,   // NEW
+  claimOrder          // NEW
 };
