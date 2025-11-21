@@ -7,7 +7,9 @@ const { authorize } = require('../middlewares/role.middleware');
 
 // USER ROUTES
 router.post('/', authenticate, authorize('user'), orderController.createOrder);
+// allow any authenticated user to fetch their own orders (controller reads req.user)
 router.get('/my-orders', authenticate, orderController.getMyOrders);
+// Fetch orders for a specific user id. Allow owners or the user themselves.
 router.get('/user/:user_id', authenticate, orderController.getOrdersByUser);
 
 // OWNER ROUTES
