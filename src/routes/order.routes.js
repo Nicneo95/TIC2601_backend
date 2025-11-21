@@ -7,7 +7,8 @@ const { authorize } = require('../middlewares/role.middleware');
 
 // USER ROUTES
 router.post('/', authenticate, authorize('user'), orderController.createOrder);
-router.get('/my-orders', authenticate, authorize('user'), orderController.getMyOrders);
+router.get('/my-orders', authenticate, orderController.getMyOrders);
+router.get('/user/:user_id', authenticate, orderController.getOrdersByUser);
 
 // OWNER ROUTES
 router.get('/restaurant-orders', authenticate, authorize('owner'), orderController.getRestaurantOrders);

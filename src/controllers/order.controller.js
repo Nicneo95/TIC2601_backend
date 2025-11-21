@@ -123,6 +123,55 @@ async function getMyOrders(req, res) {
 }
 
 
+// Fetch orders for a specific user id. Allowed if requester is the same user or an 'owner'.
+async function getOrdersByUser(req, res) {
+  try {
+    const { user_id } = req.params;
+
+    // debug: log key request info to help trace permission/identity issues
+    try {
+      console.log('getOrdersByUser called - params.user_id:', user_id);
+      console.log('  req.user:', req.user ? { user_id: req.user.user_id, role: req.user.role } : null);
+      console.log('  headers.cookie:', req.headers && req.headers.cookie);
+    } catch (dbg) {
+      console.error('Error logging getOrdersByUser debug info:', dbg);
+    }
+
+    // simple permission check: allow if requester is owner OR requesting their own orders
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const requesterIsOwner = req.user.role === 'owner';
+    const requesterIsSameUser = Number(req.user.user_id) === Number(user_id);
+
+    if (!requesterIsOwner && !requesterIsSameUser) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const orders = await Orders.findAll({
+      where: { user_id },
+      include: [
+        {
+          model: OrderDetails,
+          include: [{ model: MenuItems, attributes: ['name', 'price'] }]
+        },
+        {
+          model: Restaurants,
+          attributes: ['name', 'address']
+        }
+      ],
+      order: [['order_date', 'DESC']]
+    });
+
+    return res.status(200).json({ message: 'User orders fetched successfully', total_orders: orders.length, orders });
+  } catch (err) {
+    console.error('Error fetching orders for user:', err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+
+
 // HOST — View all orders for their restaurant(s)
 async function getRestaurantOrders(req, res) {
   try {
@@ -299,6 +348,8 @@ async function claimOrder(req, res) {
 module.exports = {
   createOrder,
   getMyOrders,
+  // fetch orders for a specific user (owner or same user)
+  getOrdersByUser,
   getRestaurantOrders,
   updateOrderStatus,
   getPendingOrders,   // NEW
