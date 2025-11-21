@@ -20,7 +20,7 @@ router.get('/:id', controller.getOne);
 // Create restaurant (Host/Admin) + Image
 // router.post('/', authenticate, authorize('host', 'admin'), upload.single('image'), controller.create);
 // Update restaurant image
-// router.put('/:id/image', authenticate, authorize('host', 'admin'), upload.single('image'), controller.update);
+router.put('/:id/image', authenticate, authorize('owner'), upload.single('image'), controller.update);
 // router.put('/:id/update', authenticate, authorize('owner'), controller.update);
 
 module.exports = router;
