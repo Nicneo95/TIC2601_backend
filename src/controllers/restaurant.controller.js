@@ -141,7 +141,7 @@ async function create(req, res) {
       }
     }
 
-    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    const image_url = req.file ? /uploads/${req.file.filename} : null;
 
     const restaurant = await Restaurants.create({
       user_id: req.user.user_id,

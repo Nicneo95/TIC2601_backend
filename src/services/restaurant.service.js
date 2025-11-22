@@ -14,12 +14,26 @@ const EARTH_RADIUS_KM = 6371;
 // Earth's radius in kilometers (used for Haversine formula).
 // You can switch to 3959 for miles if needed.
 
-// CREATE Restaurant — only host or admin allowed
+// CREATE Restaurant — only owner allowed
 async function createRestaurant(user, payload) {
-  // Only 'host' or 'admin' can create a restaurant.
+  // Only 'owner' can create a restaurant.
   if (user.role !== 'owner') {
     const err = new Error('Only owners can create restaurants');
     err.status = 403;
+    throw err;
+  }
+
+  // Normalise owner id
+  const ownerId = user.id || user.user_id;
+
+  // ===== NEW: enforce 1 owner → 1 restaurant =====
+  const existing = await Restaurants.findOne({
+    where: { user_id: ownerId }
+  });
+
+  if (existing) {
+    const err = new Error('Restaurant already exists for this owner');
+    err.status = 409; // Conflict
     throw err;
   }
 
@@ -39,17 +53,17 @@ async function createRestaurant(user, payload) {
   //   payload.longitude = coords.lng;
   // }
 
-  // Save restaurant in DB with owner (user_id).
+// Save restaurant in DB with owner (user_id).
   const restaurant = await Restaurants.create({
-    user_id: user.id || user.user_id,
+    user_id: ownerId,   // use the normalised id
     ...payload
   });
 
-  // Return a clean, plain object version of the record.
+// Return a clean, plain object version of the record.
   return restaurant.get({ plain: true });
 }
 
-// UPDATE Restaurant — host (own) or admin can update
+// UPDATE Restaurant — owner can update only their own restaurant
 async function updateRestaurant(user, restaurantId, payload) {
   // Find the restaurant by ID
   const restaurant = await Restaurants.findByPk(restaurantId);
@@ -59,8 +73,10 @@ async function updateRestaurant(user, restaurantId, payload) {
     throw err;
   }
 
-  // If not admin, make sure the user owns this restaurant.
-  if (user.role !== 'owner' && restaurant.user_id !== (user.id || user.user_id)) {
+  const ownerId = user.id || user.user_id;
+
+  // must be owner AND must own this restaurant
+  if (user.role !== 'owner' || restaurant.user_id !== ownerId) {
     const err = new Error('Forbidden: you can only update your own restaurant');
     err.status = 403;
     throw err;
